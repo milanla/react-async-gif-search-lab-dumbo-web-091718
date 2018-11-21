@@ -2,50 +2,57 @@ import React, { Component } from 'react';
 import GifSearch from '../components/GifSearch.js'
 import GifList from '../components/GifList.js'
 
-class GifListContainer extends Component {
+// renders our GifList and GifSearch components
+// fetching and storing gifs data
 
-  constructor() {
-    super()
-
-    this.state = {
-      gifs: [],
-      searchTerm: "dolphin"
-    }
+export default class GifListContainer extends Component {
+  state = {
+    gifs: [],
+    searchTerm: 'cheese'
   }
 
   componentDidMount() {
-    this.ourFetch()
+    this.doTheFetch()
   }
 
-  handleSubmit = (search) => {
+  handleChange = (e) => {
+    e.preventDefault()
     this.setState({
-      searchTerm: search.search
-    }, this.ourFetch)
-  }
-  // fetch from api here
-  ourFetch = () => {
-    console.log('in mount')
-    let url = 'http://api.giphy.com/v1/gifs/search?q='
-    let apiKey = '&api_key=dc6zaTOxFJmzC&rating=g'
-    fetch(url + this.state.searchTerm + apiKey)
-    .then(res => res.json())
-    .then(json => {
-      let threeGifs = json.data.slice(0,3)
-      this.setState({ gifs: threeGifs })
+      [e.target.name]: e.target.value
     })
   }
 
+  handleSubmit = (e) => {
+    e.preventDefault()
+    this.doTheFetch()
+    this.setState({
+      searchTerm: ""
+    })
+  }
+
+  doTheFetch = () => {
+    const firstUrl = 'http://api.giphy.com/v1/gifs/search?q='
+    const secondUrl = '&api_key=dc6zaTOxFJmzC&rating=g'
+
+    fetch(firstUrl + this.state.searchTerm + secondUrl)
+      .then(res => res.json())
+      .then(json => {
+        const gifsArr = json.data.slice(0,3)
+        this.setState({
+          gifs: gifsArr
+        })
+      })
+  }
+
   render() {
-    console.log('hi')
+    const { gifs, searchTerm } = this.state
+
     return (
       <div>
-        <GifSearch onGifSubmit={this.handleSubmit}/>
-        <GifList gifs={this.state.gifs}/>
+        <GifSearch     handleChange={this.handleChange} handleSubmit={this.handleSubmit} searchValue={searchTerm}/>
+        <GifList gifs={ gifs }/>
       </div>
     )
   }
 
-
 }
-
-export default GifListContainer;
